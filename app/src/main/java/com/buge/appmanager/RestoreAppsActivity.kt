@@ -3,6 +3,8 @@
 
 package com.buge.appmanager
 
+import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,12 +21,15 @@ import com.buge.appmanager.util.LogManager
 import com.buge.appmanager.util.SnackbarHelper
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class UninstalledAppInfo(
     val packageName: String,
     val appName: String,
-    val isSystemApp: Boolean
+    val isSystemApp: Boolean,
+    val icon: Drawable? = null
 )
 
 class RestoreAppsActivity : BaseActivity() {
@@ -94,79 +99,69 @@ class RestoreAppsActivity : BaseActivity() {
         }
     }
 
-    private suspend fun getUninstalledApps(): List<UninstalledAppInfo> {
-        val result = ShizukuManager.executeCommand("pm list packages -u")
-        if (!result.success) {
-            LogManager.warning(this, "Failed to get all packages", result.error)
-            return emptyList()
-        }
-
-        val allPackages = result.output.lines()
-            .filter { it.startsWith("package:") }
-            .map { it.removePrefix("package:") }
-            .filter { it.isNotEmpty() }
-            .toSet()
-
-        // Get currently installed packages
-        val installedResult = ShizukuManager.executeCommand("pm list packages")
-        if (!installedResult.success) {
-            LogManager.warning(this, "Failed to get installed packages", installedResult.error)
-            return emptyList()
-        }
-
-        val installedPackages = installedResult.output.lines()
-            .filter { it.startsWith("package:") }
-            .map { it.removePrefix("package:") }
-            .filter { it.isNotEmpty() }
-            .toSet()
-
-        // Get system packages
-        val systemResult = ShizukuManager.executeCommand("pm list packages -s")
-        if (!systemResult.success) {
-            LogManager.warning(this, "Failed to get system packages", systemResult.error)
-            return emptyList()
-        }
-
-        val systemPackages = systemResult.output.lines()
-            .filter { it.startsWith("package:") }
-            .map { it.removePrefix("package:") }
-            .filter { it.isNotEmpty() }
-            .toSet()
-
-        // Uninstalled apps = packages that appear in -u list but not in installed list
-        val uninstalledPackageNames = allPackages.filter { pkg ->
-            pkg !in installedPackages
-        }
-
-        if (uninstalledPackageNames.isEmpty()) {
-            return emptyList()
-        }
-
+    private suspend fun getUninstalledApps(): List<UninstalledAppInfo> = withContext(Dispatchers.IO) {
+        val pm = packageManager
         val apps = mutableListOf<UninstalledAppInfo>()
 
-        for (pkg in uninstalledPackageNames) {
-            var appName = pkg.substringAfterLast(".")
-            val isSystemApp = pkg in systemPackages
+        val result = ShizukuManager.executeCommand("pm list packages -u")
+        if (!result.success) return@withContext emptyList()
 
-            try {
-                // Try to get app label from package info
-                val labelResult = ShizukuManager.executeCommand("dumpsys package $pkg | grep -E 'applicationInfo.*labelRes' | head -1")
-                if (labelResult.success && labelResult.output.isNotEmpty()) {
-                    val match = Regex("labelRes=0x[0-9a-f]+ '([^']+)'").find(labelResult.output)
-                    appName = match?.groupValues?.get(1) ?: appName
-                }
-            } catch (e: Exception) {
-                // Keep package name as fallback
-            }
+        val allPkgs = result.output.lines()
+            .map { it.removePrefix("package:").trim() }
+            .filter { it.isNotEmpty() }
 
-            apps.add(UninstalledAppInfo(
-                packageName = pkg,
-                appName = appName,
-                isSystemApp = isSystemApp
-            ))
+        val user0Result = ShizukuManager.executeCommand("pm list packages --user 0")
+        val user0Pkgs = if (user0Result.success) {
+            user0Result.output.lines()
+                .map { it.removePrefix("package:").trim() }
+                .filter { it.isNotEmpty() }
+                .toSet()
+        } else {
+            emptySet()
         }
 
-        return apps.sortedBy { it.appName.lowercase() }
+        val uninstalledPkgs = allPkgs.filter { pkg ->
+            pkg !in user0Pkgs
+        }
+
+        for (pkg in uninstalledPkgs) {
+            val appName = when (pkg) {
+                "com.android.browser" -> "Mi Browser"
+                else -> {
+                    try {
+                        val ai = pm.getApplicationInfo(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES)
+                        pm.getApplicationLabel(ai).toString()
+                    } catch (_: Exception) {
+                        pkg.substringAfterLast(".").replaceFirstChar { it.uppercase() }
+                    }
+                }
+            }
+            
+            var appIcon: Drawable? = null
+            var isSystem = false
+            try {
+                val appInfo = pm.getApplicationInfo(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES)
+                appIcon = pm.getApplicationIcon(appInfo)
+                isSystem = (appInfo.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
+            } catch (_: Exception) {
+                try {
+                    val appInfo = pm.getApplicationInfo(pkg, 0)
+                    appIcon = pm.getApplicationIcon(appInfo)
+                    isSystem = (appInfo.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
+                } catch (_: Exception) {}
+            }
+
+            apps.add(
+                UninstalledAppInfo(
+                    packageName = pkg,
+                    appName = appName,
+                    isSystemApp = isSystem,
+                    icon = appIcon
+                )
+            )
+        }
+
+        apps.sortedBy { it.appName.lowercase() }
     }
 
     private fun showRestoreConfirmDialog(app: UninstalledAppInfo) {
@@ -187,19 +182,17 @@ class RestoreAppsActivity : BaseActivity() {
 
         lifecycleScope.launch {
             try {
-                val result = ShizukuManager.executeCommand("pm install-existing --user 0 ${app.packageName}")
-                if (result.success) {
+                val res = ShizukuManager.executeCommand("pm install-existing --user 0 ${app.packageName}")
+                if (res.success) {
                     SnackbarHelper.showSnackbar(binding.root, getString(R.string.restore_success))
                     LogManager.success(this@RestoreAppsActivity, "App restored", "Package: ${app.packageName}")
                     loadUninstalledApps()
                 } else {
-                    val errorMsg = result.error.ifEmpty { "Unknown error" }
-                    SnackbarHelper.showSnackbar(binding.root, "${getString(R.string.restore_failed)}: $errorMsg")
-                    LogManager.error(this@RestoreAppsActivity, "Restore failed", "Package: ${app.packageName}, Error: $errorMsg")
+                    val err = res.error.ifEmpty { "Unknown error" }
+                    SnackbarHelper.showSnackbar(binding.root, "${getString(R.string.restore_failed)}: $err")
                 }
             } catch (e: Exception) {
                 SnackbarHelper.showSnackbar(binding.root, "${getString(R.string.restore_failed)}: ${e.message}")
-                LogManager.error(this@RestoreAppsActivity, "Restore failed", e.message)
             } finally {
                 binding.loadingOverlay.visibility = View.GONE
             }
@@ -261,7 +254,11 @@ class RestoreAppsActivity : BaseActivity() {
             private val btnRestore: MaterialButton = itemView.findViewById(R.id.btn_restore)
 
             fun bind(app: UninstalledAppInfo) {
-                appIcon.setImageResource(android.R.drawable.sym_def_app_icon)
+                if (app.icon != null) {
+                    appIcon.setImageDrawable(app.icon)
+                } else {
+                    appIcon.setImageResource(android.R.drawable.sym_def_app_icon)
+                }
                 appName.text = app.appName
                 packageName.text = app.packageName
 
