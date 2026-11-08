@@ -125,30 +125,28 @@ class RestoreAppsActivity : BaseActivity() {
         }
 
         for (pkg in uninstalledPkgs) {
-            val appName = when (pkg) {
-                "com.android.browser" -> "Mi Browser"
-                else -> {
-                    try {
-                        val ai = pm.getApplicationInfo(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES)
-                        pm.getApplicationLabel(ai).toString()
-                    } catch (_: Exception) {
-                        pkg.substringAfterLast(".").replaceFirstChar { it.uppercase() }
-                    }
-                }
-            }
-            
             var appIcon: Drawable? = null
             var isSystem = false
+            var appName = ""
+
             try {
                 val appInfo = pm.getApplicationInfo(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES)
-                appIcon = pm.getApplicationIcon(appInfo)
                 isSystem = (appInfo.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
+                appIcon = try { pm.getApplicationIcon(appInfo) } catch (_: Exception) { null }
+                appName = pm.getApplicationLabel(appInfo).toString()
             } catch (_: Exception) {
                 try {
                     val appInfo = pm.getApplicationInfo(pkg, 0)
-                    appIcon = pm.getApplicationIcon(appInfo)
                     isSystem = (appInfo.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
-                } catch (_: Exception) {}
+                    appIcon = try { pm.getApplicationIcon(appInfo) } catch (_: Exception) { null }
+                    appName = pm.getApplicationLabel(appInfo).toString()
+                } catch (_: Exception) {
+                    appName = pkg.substringAfterLast(".").replaceFirstChar { it.uppercase() }
+                }
+            }
+
+            if (appName.isBlank() || appName == pkg) {
+                appName = pkg.substringAfterLast(".").replaceFirstChar { it.uppercase() }
             }
 
             apps.add(
