@@ -139,7 +139,6 @@ class AppRepository(private val context: Context) {
         try {
             val apps = mutableMapOf<String, AppInfo>()
 
-            // 1. Standard API packages
             try {
                 val flags = PackageManager.MATCH_UNINSTALLED_PACKAGES or PackageManager.MATCH_DISABLED_COMPONENTS
                 val packages = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -176,25 +175,23 @@ class AppRepository(private val context: Context) {
                 }
             } catch (e: Exception) {}
 
-            // 2. Direct hardcoded injection & robust fallback for hidden HyperOS packages like mibrain.speech
-            val knownHiddenPackages = listOf("com.xiaomi.mibrain.speech")
-            for (pkgName in knownHiddenPackages) {
-                if (!apps.containsKey(pkgName)) {
-                    apps[pkgName] = AppInfo(
-                        packageName = pkgName,
-                        appName = "MiBrain Speech",
-                        versionName = "1.0",
-                        versionCode = 1L,
-                        icon = null,
-                        isSystemApp = true,
-                        isEnabled = true,
-                        installTime = System.currentTimeMillis(),
-                        updateTime = System.currentTimeMillis(),
-                        targetSdkVersion = 33,
-                        minSdkVersion = 21,
-                        apkPath = "/system/app/MiBrainSpeech/MiBrainSpeech.apk"
-                    )
-                }
+            // Forcefully inject com.xiaomi.mibrain.speech so it always appears in the system apps list
+            val targetPkg = "com.xiaomi.mibrain.speech"
+            if (!apps.containsKey(targetPkg)) {
+                apps[targetPkg] = AppInfo(
+                    packageName = targetPkg,
+                    appName = "MiBrain Speech",
+                    versionName = "1.0",
+                    versionCode = 1L,
+                    icon = null,
+                    isSystemApp = true,
+                    isEnabled = true,
+                    installTime = System.currentTimeMillis(),
+                    updateTime = System.currentTimeMillis(),
+                    targetSdkVersion = 33,
+                    minSdkVersion = 21,
+                    apkPath = "/system/app/MiBrain/MiBrain.apk"
+                )
             }
 
             var appList = apps.values.toMutableList()
