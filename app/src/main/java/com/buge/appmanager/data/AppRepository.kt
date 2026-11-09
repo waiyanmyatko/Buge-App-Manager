@@ -137,20 +137,19 @@ class AppRepository(private val context: Context) {
         showDisabledApps: Boolean = true
     ): List<AppInfo> = withContext(Dispatchers.IO) {
         try {
-            // မူရင်းအတိုင်း တိကျလုံခြုံသော flag ဖြင့် ပြန်လည်ပြင်ဆင်ထားသည်
-            val flags = PackageManager.MATCH_UNINSTALLED_PACKAGES or PackageManager.MATCH_DISABLED_COMPONENTS
+            val apps = mutableMapOf<String, AppInfo>()
 
-            val packages: List<PackageInfo> = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                pm.getInstalledPackages(PackageManager.PackageInfoFlags.of(flags.toLong()))
-            } else {
-                @Suppress("DEPRECATION")
-                pm.getInstalledPackages(flags)
-            }
+            // 1. Standard API packages
+            try {
+                val flags = PackageManager.MATCH_UNINSTALLED_PACKAGES or PackageManager.MATCH_DISABLED_COMPONENTS
+                val packages = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    pm.getInstalledPackages(PackageManager.PackageInfoFlags.of(flags.toLong()))
+                } else {
+                    @Suppress("DEPRECATION")
+                    pm.getInstalledPackages(flags)
+                }
 
-            var apps = mutableListOf<AppInfo>()
-
-            for (pkg in packages) {
-                try {
+                for (pkg in packages) {
                     val appInfo = pkg.applicationInfo ?: continue
                     val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0 || (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
                     val isEnabled = appInfo.enabled
@@ -160,49 +159,109 @@ class AppRepository(private val context: Context) {
                     val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) pkg.longVersionCode else @Suppress("DEPRECATION") pkg.versionCode.toLong()
                     val icon = try { pm.getApplicationIcon(pkg.packageName) } catch (e: Exception) { null }
 
-                    apps.add(
-                        AppInfo(
-                            packageName = pkg.packageName,
-                            appName = appName,
-                            versionName = versionName,
-                            versionCode = versionCode,
-                            icon = icon,
-                            isSystemApp = isSystem,
-                            isEnabled = isEnabled,
-                            installTime = pkg.firstInstallTime,
-                            updateTime = pkg.lastUpdateTime,
-                            targetSdkVersion = appInfo.targetSdkVersion,
-                            minSdkVersion = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) appInfo.minSdkVersion else 0,
-                            apkPath = appInfo.sourceDir ?: ""
-                        )
+                    apps[pkg.packageName] = AppInfo(
+                        packageName = pkg.packageName,
+                        appName = if (appName.isBlank()) pkg.packageName else appName,
+                        versionName = versionName,
+                        versionCode = versionCode,
+                        icon = icon,
+                        isSystemApp = isSystem,
+                        isEnabled = isEnabled,
+                        installTime = pkg.firstInstallTime,
+                        updateTime = pkg.lastUpdateTime,
+                        targetSdkVersion = appInfo.targetSdkVersion,
+                        minSdkVersion = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) appInfo.minSdkVersion else 0,
+                        apkPath = appInfo.sourceDir ?: ""
                     )
-                } catch (e: Exception) {}
+                }
+            } catch (e: Exception) {}
+
+            // 2. Fallback via Shizuku command to catch hidden/protected system apps like mibrain.speech
+            try {
+                val cmdResult = ShizukuManager.executeCommand("pm list packages -u -f")
+                if (cmdResult.success) {
+                    for (line in cmdResult.output.lines()) {
+                        val trimmed = line.trim()
+                        if (!trimmed.startsWith("package:")) continue
+                        // Format: package:/system/app/MiBrain/MiBrain.apk=com.xiaomi.mibrain.speech
+                        val eqIndex = trimmed.lastIndexOf('=')
+                        if (eqIndex == -1) continue
+                        val apkPath = trimmed.substring(8, eqIndex).trim()
+                        val pkgName = trimmed.substring(eqIndex + 1).trim()
+
+                        if (pkgName.isNotEmpty() && !apps.containsKey(pkgName)) {
+                            var appName = pkgName.substringAfterLast(".").replaceFirstChar { it.uppercase() }
+                            var isSys = true
+                            var isEn = true
+                            var targetSdk = 33
+                            var minSdk = 21
+                            var installTime = System.currentTimeMillis()
+                            var updateTime = System.currentTimeMillis()
+                            var versionName = "Unknown"
+                            var versionCode = 1L
+                            var icon: android.graphics.drawable.Drawable? = null
+
+                            try {
+                                val appInfo = pm.getApplicationInfo(pkgName, PackageManager.MATCH_UNINSTALLED_PACKAGES)
+                                isSys = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0 || (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0 || apkPath.startsWith("/system") || apkPath.startsWith("/product") || apkPath.startsWith("/vendor")
+                                isEn = appInfo.enabled
+                                targetSdk = appInfo.targetSdkVersion
+                                val label = pm.getApplicationLabel(appInfo).toString()
+                                if (label.isNotBlank()) appName = label
+                                icon = try { pm.getApplicationIcon(appInfo) } catch (e: Exception) { null }
+                                
+                                val pInfo = pm.getPackageInfo(pkgName, 0)
+                                versionName = pInfo.versionName ?: "Unknown"
+                                versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) pInfo.longVersionCode else @Suppress("DEPRECATION") pInfo.versionCode.toLong()
+                                installTime = pInfo.firstInstallTime
+                                updateTime = pInfo.lastUpdateTime
+                            } catch (e: Exception) {}
+
+                            apps[pkgName] = AppInfo(
+                                packageName = pkgName,
+                                appName = appName,
+                                versionName = versionName,
+                                versionCode = versionCode,
+                                icon = icon,
+                                isSystemApp = isSys,
+                                isEnabled = isEn,
+                                installTime = installTime,
+                                updateTime = updateTime,
+                                targetSdkVersion = targetSdk,
+                                minSdkVersion = minSdk,
+                                apkPath = apkPath
+                            )
+                        }
+                    }
+                }
+            } catch (e: Exception) {}
+
+            var appList = apps.values.toMutableList()
+
+            appList = when (filter) {
+                AppFilter.ALL -> if (showSystemApps) appList else appList.filter { !it.isSystemApp }.toMutableList()
+                AppFilter.USER -> appList.filter { !it.isSystemApp }.toMutableList()
+                AppFilter.SYSTEM -> appList.filter { it.isSystemApp }.toMutableList()
+                AppFilter.FAVORITE -> appList.filter { PreferencesManager.isFavoriteApp(context, it.packageName) }.toMutableList()
+                AppFilter.DISABLED -> appList.filter { !it.isEnabled }.toMutableList()
             }
 
-            apps = when (filter) {
-                AppFilter.ALL -> if (showSystemApps) apps else apps.filter { !it.isSystemApp }.toMutableList()
-                AppFilter.USER -> apps.filter { !it.isSystemApp }.toMutableList()
-                AppFilter.SYSTEM -> apps.filter { it.isSystemApp }.toMutableList()
-                AppFilter.FAVORITE -> apps.filter { PreferencesManager.isFavoriteApp(context, it.packageName) }.toMutableList()
-                AppFilter.DISABLED -> apps.filter { !it.isEnabled }.toMutableList()
-            }
-
-            if (!showDisabledApps) apps = apps.filter { it.isEnabled }.toMutableList()
+            if (!showDisabledApps) appList = appList.filter { it.isEnabled }.toMutableList()
 
             if (searchQuery.isNotEmpty()) {
-                apps = apps.filter { it.appName.contains(searchQuery, ignoreCase = true) || it.packageName.contains(searchQuery, ignoreCase = true) }.toMutableList()
+                appList = appList.filter { it.appName.contains(searchQuery, ignoreCase = true) || it.packageName.contains(searchQuery, ignoreCase = true) }.toMutableList()
             }
 
-            apps = when (sortOrder) {
-                AppSortOrder.NAME -> apps.sortedBy { it.appName.lowercase() }.toMutableList()
-                AppSortOrder.INSTALL_DATE -> apps.sortedByDescending { it.installTime }.toMutableList()
+            appList = when (sortOrder) {
+                AppSortOrder.NAME -> appList.sortedBy { it.appName.lowercase() }.toMutableList()
+                AppSortOrder.INSTALL_DATE -> appList.sortedByDescending { it.installTime }.toMutableList()
                 AppSortOrder.SIZE -> {
-                    val sizeMap = getAppSizesBatch(apps)
-                    apps.sortedByDescending { sizeMap[it.packageName] ?: 0L }.toMutableList()
+                    val sizeMap = getAppSizesBatch(appList)
+                    appList.sortedByDescending { sizeMap[it.packageName] ?: 0L }.toMutableList()
                 }
             }
 
-            apps
+            appList
         } catch (e: Exception) { emptyList() }
     }
 
