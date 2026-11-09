@@ -139,9 +139,9 @@ class AppRepository(private val context: Context) {
         try {
             val apps = mutableMapOf<String, AppInfo>()
 
-            // 1. Standard API packages
+            // 1. Standard API packages with all flags
             try {
-                val flags = PackageManager.MATCH_UNINSTALLED_PACKAGES or PackageManager.MATCH_DISABLED_COMPONENTS
+                val flags = PackageManager.MATCH_UNINSTALLED_PACKAGES or PackageManager.MATCH_DISABLED_COMPONENTS or PackageManager.MATCH_DIRECT_BOOT_AWARE or PackageManager.MATCH_DIRECT_BOOT_UNAWARE
                 val packages = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     pm.getInstalledPackages(PackageManager.PackageInfoFlags.of(flags.toLong()))
                 } else {
@@ -176,14 +176,13 @@ class AppRepository(private val context: Context) {
                 }
             } catch (e: Exception) {}
 
-            // 2. Fallback via Shizuku command to catch hidden/protected system apps like mibrain.speech
+            // 2. Comprehensive Shizuku command scan to catch deeply hidden system packages (like mibrain.speech)
             try {
-                val cmdResult = ShizukuManager.executeCommand("pm list packages -u -f")
+                val cmdResult = ShizukuManager.executeCommand("pm list packages -u -a -f")
                 if (cmdResult.success) {
                     for (line in cmdResult.output.lines()) {
                         val trimmed = line.trim()
                         if (!trimmed.startsWith("package:")) continue
-                        // Format: package:/system/app/MiBrain/MiBrain.apk=com.xiaomi.mibrain.speech
                         val eqIndex = trimmed.lastIndexOf('=')
                         if (eqIndex == -1) continue
                         val apkPath = trimmed.substring(8, eqIndex).trim()
@@ -202,8 +201,8 @@ class AppRepository(private val context: Context) {
                             var icon: android.graphics.drawable.Drawable? = null
 
                             try {
-                                val appInfo = pm.getApplicationInfo(pkgName, PackageManager.MATCH_UNINSTALLED_PACKAGES)
-                                isSys = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0 || (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0 || apkPath.startsWith("/system") || apkPath.startsWith("/product") || apkPath.startsWith("/vendor")
+                                val appInfo = pm.getApplicationInfo(pkgName, PackageManager.MATCH_UNINSTALLED_PACKAGES or PackageManager.MATCH_DISABLED_COMPONENTS)
+                                isSys = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0 || (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0 || true
                                 isEn = appInfo.enabled
                                 targetSdk = appInfo.targetSdkVersion
                                 val label = pm.getApplicationLabel(appInfo).toString()
@@ -215,7 +214,10 @@ class AppRepository(private val context: Context) {
                                 versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) pInfo.longVersionCode else @Suppress("DEPRECATION") pInfo.versionCode.toLong()
                                 installTime = pInfo.firstInstallTime
                                 updateTime = pInfo.lastUpdateTime
-                            } catch (e: Exception) {}
+                            } catch (e: Exception) {
+                                // Direct fallback parsing if PackageManager misses it completely
+                                appName = pkgName.substringAfterLast(".").replaceFirstChar { it.uppercase() }
+                            }
 
                             apps[pkgName] = AppInfo(
                                 packageName = pkgName,
