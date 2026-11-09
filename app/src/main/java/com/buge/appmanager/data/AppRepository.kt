@@ -34,86 +34,27 @@ class AppRepository(private val context: Context) {
         private var cacheTimestamp: Long = 0
         private val CACHE_TTL_MS = 5000L
 
-        val PERMISSION_MICROPHONE = listOf(
-            "android.permission.RECORD_AUDIO"
-        )
-        val PERMISSION_CAMERA = listOf(
-            "android.permission.CAMERA"
-        )
-        val PERMISSION_LOCATION = listOf(
-            "android.permission.ACCESS_FINE_LOCATION",
-            "android.permission.ACCESS_COARSE_LOCATION"
-        )
-        val PERMISSION_BACKGROUND_LOCATION = listOf(
-            "android.permission.ACCESS_BACKGROUND_LOCATION"
-        )
-        val PERMISSION_CONTACTS = listOf(
-            "android.permission.READ_CONTACTS",
-            "android.permission.WRITE_CONTACTS",
-            "android.permission.GET_ACCOUNTS"
-        )
-        val PERMISSION_STORAGE = listOf(
-            "android.permission.READ_EXTERNAL_STORAGE",
-            "android.permission.WRITE_EXTERNAL_STORAGE",
-            "android.permission.MANAGE_EXTERNAL_STORAGE"
-        )
-        val PERMISSION_PHONE = listOf(
-            "android.permission.READ_PHONE_STATE",
-            "android.permission.CALL_PHONE",
-            "android.permission.READ_CALL_LOG",
-            "android.permission.WRITE_CALL_LOG",
-            "android.permission.ADD_VOICEMAIL",
-            "android.permission.USE_SIP",
-            "android.permission.PROCESS_OUTGOING_CALLS"
-        )
-        val PERMISSION_SMS = listOf(
-            "android.permission.SEND_SMS",
-            "android.permission.RECEIVE_SMS",
-            "android.permission.READ_SMS",
-            "android.permission.RECEIVE_WAP_PUSH",
-            "android.permission.RECEIVE_MMS"
-        )
-        val PERMISSION_CALENDAR = listOf(
-            "android.permission.READ_CALENDAR",
-            "android.permission.WRITE_CALENDAR"
-        )
-        val PERMISSION_SENSORS = listOf(
-            "android.permission.BODY_SENSORS",
-            "android.permission.BODY_SENSORS_BACKGROUND"
-        )
-        val PERMISSION_ACTIVITY = listOf(
-            "android.permission.ACTIVITY_RECOGNITION"
-        )
-        val PERMISSION_NEARBY = listOf(
-            "android.permission.BLUETOOTH_SCAN",
-            "android.permission.BLUETOOTH_CONNECT",
-            "android.permission.BLUETOOTH_ADVERTISE",
-            "android.permission.UWB_RANGING"
-        )
-        val PERMISSION_NOTIFICATIONS = listOf(
-            "android.permission.POST_NOTIFICATIONS"
-        )
-        val PERMISSION_MEDIA_IMAGES = listOf(
-            "android.permission.READ_MEDIA_IMAGES"
-        )
-        val PERMISSION_MEDIA_VIDEO = listOf(
-            "android.permission.READ_MEDIA_VIDEO"
-        )
-        val PERMISSION_MEDIA_AUDIO = listOf(
-            "android.permission.READ_MEDIA_AUDIO"
-        )
-        val PERMISSION_OVERLAY = listOf(
-            "android.permission.SYSTEM_ALERT_WINDOW"
-        )
-        val PERMISSION_INSTALL_UNKNOWN_APPS = listOf(
-            "android.permission.REQUEST_INSTALL_PACKAGES"
-        )
-        val PERMISSION_MANAGE_STORAGE = listOf(
-            "android.permission.MANAGE_EXTERNAL_STORAGE"
-        )
-        val PERMISSION_WRITE_SETTINGS = listOf(
-            "android.permission.WRITE_SETTINGS"
-        )
+        val PERMISSION_MICROPHONE = listOf("android.permission.RECORD_AUDIO")
+        val PERMISSION_CAMERA = listOf("android.permission.CAMERA")
+        val PERMISSION_LOCATION = listOf("android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION")
+        val PERMISSION_BACKGROUND_LOCATION = listOf("android.permission.ACCESS_BACKGROUND_LOCATION")
+        val PERMISSION_CONTACTS = listOf("android.permission.READ_CONTACTS", "android.permission.WRITE_CONTACTS", "android.permission.GET_ACCOUNTS")
+        val PERMISSION_STORAGE = listOf("android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.MANAGE_EXTERNAL_STORAGE")
+        val PERMISSION_PHONE = listOf("android.permission.READ_PHONE_STATE", "android.permission.CALL_PHONE", "android.permission.READ_CALL_LOG", "android.permission.WRITE_CALL_LOG", "android.permission.ADD_VOICEMAIL", "android.permission.USE_SIP", "android.permission.PROCESS_OUTGOING_CALLS")
+        val PERMISSION_SMS = listOf("android.permission.SEND_SMS", "android.permission.RECEIVE_SMS", "android.permission.READ_SMS", "android.permission.RECEIVE_WAP_PUSH", "android.permission.RECEIVE_MMS")
+        val PERMISSION_CALENDAR = listOf("android.permission.READ_CALENDAR", "android.permission.WRITE_CALENDAR")
+        val PERMISSION_SENSORS = listOf("android.permission.BODY_SENSORS", "android.permission.BODY_SENSORS_BACKGROUND")
+        val PERMISSION_ACTIVITY = listOf("android.permission.ACTIVITY_RECOGNITION")
+        val PERMISSION_NEARBY = listOf("android.permission.BLUETOOTH_SCAN", "android.permission.BLUETOOTH_CONNECT", "android.permission.BLUETOOTH_ADVERTISE", "android.permission.UWB_RANGING")
+        val PERMISSION_NOTIFICATIONS = listOf("android.permission.POST_NOTIFICATIONS")
+        val PERMISSION_MEDIA_IMAGES = listOf("android.permission.READ_MEDIA_IMAGES")
+        val PERMISSION_MEDIA_VIDEO = listOf("android.permission.READ_MEDIA_VIDEO")
+        val PERMISSION_MEDIA_AUDIO = listOf("android.permission.READ_MEDIA_AUDIO")
+        val PERMISSION_OVERLAY = listOf("android.permission.SYSTEM_ALERT_WINDOW")
+        val PERMISSION_INSTALL_UNKNOWN_APPS = listOf("android.permission.REQUEST_INSTALL_PACKAGES")
+        val PERMISSION_MANAGE_STORAGE = listOf("android.permission.MANAGE_EXTERNAL_STORAGE")
+        val PERMISSION_WRITE_SETTINGS = listOf("android.permission.WRITE_SETTINGS")
+        
         val ALL_DANGEROUS_PERMISSIONS = (
             PERMISSION_MICROPHONE + PERMISSION_CAMERA + PERMISSION_LOCATION +
             PERMISSION_BACKGROUND_LOCATION + PERMISSION_CONTACTS + PERMISSION_STORAGE +
@@ -124,21 +65,9 @@ class AppRepository(private val context: Context) {
             PERMISSION_WRITE_SETTINGS
         ).toSet()
 
-        val APPOP_PERMISSIONS = setOf(
-            "android.permission.SYSTEM_ALERT_WINDOW",
-            "android.permission.REQUEST_INSTALL_PACKAGES"
-        )
-
-        val APPOP_ONLY_PERMISSIONS = setOf(
-            "android.permission.MANAGE_EXTERNAL_STORAGE"
-        )
-
-        val DHIZUKU_UNSUPPORTED_PERMISSIONS = setOf(
-            "android.permission.SYSTEM_ALERT_WINDOW",
-            "android.permission.REQUEST_INSTALL_PACKAGES",
-            "android.permission.WRITE_SETTINGS",
-            "android.permission.MANAGE_EXTERNAL_STORAGE"
-        )
+        val APPOP_PERMISSIONS = setOf("android.permission.SYSTEM_ALERT_WINDOW", "android.permission.REQUEST_INSTALL_PACKAGES")
+        val APPOP_ONLY_PERMISSIONS = setOf("android.permission.MANAGE_EXTERNAL_STORAGE")
+        val DHIZUKU_UNSUPPORTED_PERMISSIONS = setOf("android.permission.SYSTEM_ALERT_WINDOW", "android.permission.REQUEST_INSTALL_PACKAGES", "android.permission.WRITE_SETTINGS", "android.permission.MANAGE_EXTERNAL_STORAGE")
     }
 
     private fun getSpecialPermissionStatus(packageName: String, permission: String): Boolean? {
@@ -148,125 +77,51 @@ class AppRepository(private val context: Context) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         val appOps = context.getSystemService(AppOpsManager::class.java)
                         val uid = pm.getApplicationInfo(packageName, 0).uid
-                        val mode = appOps.checkOpNoThrow(
-                            AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW,
-                            uid,
-                            packageName
-                        )
-                        mode == AppOpsManager.MODE_ALLOWED
-                    } else {
-                        true
-                    }
+                        appOps.checkOpNoThrow(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW, uid, packageName) == AppOpsManager.MODE_ALLOWED
+                    } else true
                 }
                 "android.permission.REQUEST_INSTALL_PACKAGES" -> {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         val appOps = context.getSystemService(AppOpsManager::class.java)
                         val uid = pm.getApplicationInfo(packageName, 0).uid
-                        val mode = appOps.checkOpNoThrow(
-                            "android:request_install_packages",
-                            uid,
-                            packageName
-                        )
-                        mode == AppOpsManager.MODE_ALLOWED
-                    } else {
-                        true
-                    }
+                        appOps.checkOpNoThrow("android:request_install_packages", uid, packageName) == AppOpsManager.MODE_ALLOWED
+                    } else true
                 }
                 else -> null
             }
-        } catch (e: Exception) {
-            Log.w(TAG, "getSpecialPermissionStatus error for $packageName / $permission: ${e.message}")
-            null
-        }
+        } catch (e: Exception) { null }
     }
 
     suspend fun getManageExternalStorageStatus(packageName: String): Boolean? {
-        return try {
-            ShizukuManager.getManageExternalStorageStatus(packageName)
-        } catch (e: Exception) {
-            Log.w(TAG, "Error getting MANAGE_EXTERNAL_STORAGE status: ${e.message}")
-            null
-        }
+        return try { ShizukuManager.getManageExternalStorageStatus(packageName) } catch (e: Exception) { null }
     }
 
     private suspend fun getAppTotalSize(packageName: String): Long = withContext(Dispatchers.IO) {
         try {
             withTimeout(3000L) {
                 var totalSize = 0L
-
                 try {
                     val appInfo = pm.getApplicationInfo(packageName, 0)
                     val apkFile = File(appInfo.sourceDir)
-                    if (apkFile.exists()) {
-                        totalSize += apkFile.length()
-                    }
-                } catch (e: Exception) {
-                }
+                    if (apkFile.exists()) totalSize += apkFile.length()
+                } catch (e: Exception) {}
 
                 try {
                     val result = ShizukuManager.executeCommand("du -s /data/data/$packageName 2>/dev/null | cut -f1")
                     if (result.success && result.output.isNotEmpty()) {
                         val sizeKB = result.output.trim().toLongOrNull()
-                        if (sizeKB != null && sizeKB > 0) {
-                            totalSize += sizeKB * 1024
-                        }
+                        if (sizeKB != null && sizeKB > 0) totalSize += sizeKB * 1024
                     }
-                } catch (e: Exception) {
-                }
-
+                } catch (e: Exception) {}
                 totalSize
             }
-        } catch (e: TimeoutCancellationException) {
-            Log.w(TAG, "Timeout getting size for $packageName, using APK size only")
-            try {
-                val appInfo = pm.getApplicationInfo(packageName, 0)
-                val apkFile = File(appInfo.sourceDir)
-                if (apkFile.exists()) {
-                    apkFile.length()
-                } else {
-                    0L
-                }
-            } catch (e2: Exception) {
-                0L
-            }
-        } catch (e: Exception) {
-            0L
-        }
+        } catch (e: Exception) { 0L }
     }
 
     private suspend fun getAppSizesBatch(apps: List<AppInfo>): Map<String, Long> = withContext(Dispatchers.IO) {
         if (apps.isEmpty()) return@withContext emptyMap()
-
-        val now = System.currentTimeMillis()
-        if (now - cacheTimestamp < CACHE_TTL_MS && sizeCache.isNotEmpty()) {
-            val result = mutableMapOf<String, Long>()
-            for (app in apps) {
-                sizeCache[app.packageName]?.let {
-                    result[app.packageName] = it
-                }
-            }
-            if (result.size == apps.size) {
-                return@withContext result
-            }
-        }
-
-        val deferred = apps.map { app ->
-            async {
-                val size = getAppTotalSize(app.packageName)
-                app.packageName to size
-            }
-        }
-
-        try {
-            val results = deferred.awaitAll()
-            val resultMap = results.toMap()
-            sizeCache.putAll(resultMap)
-            cacheTimestamp = System.currentTimeMillis()
-            resultMap
-        } catch (e: Exception) {
-            Log.w(TAG, "Batch size fetch failed: ${e.message}")
-            sizeCache.filterKeys { pk -> apps.any { it.packageName == pk } }
-        }
+        val deferred = apps.map { app -> async { app.packageName to getAppTotalSize(app.packageName) } }
+        try { deferred.awaitAll().toMap() } catch (e: Exception) { emptyMap() }
     }
 
     fun clearSizeCache() {
@@ -282,8 +137,8 @@ class AppRepository(private val context: Context) {
         showDisabledApps: Boolean = true
     ): List<AppInfo> = withContext(Dispatchers.IO) {
         try {
-            val flags = PackageManager.MATCH_UNINSTALLED_PACKAGES or 
-                        PackageManager.MATCH_DISABLED_COMPONENTS
+            // မူရင်းအတိုင်း တိကျလုံခြုံသော flag ဖြင့် ပြန်လည်ပြင်ဆင်ထားသည်
+            val flags = PackageManager.MATCH_UNINSTALLED_PACKAGES or PackageManager.MATCH_DISABLED_COMPONENTS
 
             val packages: List<PackageInfo> = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 pm.getInstalledPackages(PackageManager.PackageInfoFlags.of(flags.toLong()))
@@ -296,82 +151,46 @@ class AppRepository(private val context: Context) {
 
             for (pkg in packages) {
                 try {
-                    val appInfo = pkg.applicationInfo
-                    if (appInfo == null) continue
-
-                    val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0 ||
-                                   (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
+                    val appInfo = pkg.applicationInfo ?: continue
+                    val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0 || (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
                     val isEnabled = appInfo.enabled
 
-                    val appName = try {
-                        pm.getApplicationLabel(appInfo).toString()
-                    } catch (e: Exception) {
-                        pkg.packageName
-                    }
-
+                    val appName = try { pm.getApplicationLabel(appInfo).toString() } catch (e: Exception) { pkg.packageName }
                     val versionName = pkg.versionName ?: "Unknown"
-                    val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        pkg.longVersionCode
-                    } else {
-                        @Suppress("DEPRECATION")
-                        pkg.versionCode.toLong()
-                    }
+                    val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) pkg.longVersionCode else @Suppress("DEPRECATION") pkg.versionCode.toLong()
+                    val icon = try { pm.getApplicationIcon(pkg.packageName) } catch (e: Exception) { null }
 
-                    val icon = try {
-                        pm.getApplicationIcon(pkg.packageName)
-                    } catch (e: Exception) {
-                        null
-                    }
-
-                    val targetSdkVersion = appInfo.targetSdkVersion
-                    val minSdkVersion = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        appInfo.minSdkVersion
-                    } else {
-                        0
-                    }
-
-                    val apkPath = appInfo.sourceDir ?: ""
-
-                    val app = AppInfo(
-                        packageName = pkg.packageName,
-                        appName = appName,
-                        versionName = versionName,
-                        versionCode = versionCode,
-                        icon = icon,
-                        isSystemApp = isSystem,
-                        isEnabled = isEnabled,
-                        installTime = pkg.firstInstallTime,
-                        updateTime = pkg.lastUpdateTime,
-                        targetSdkVersion = targetSdkVersion,
-                        minSdkVersion = minSdkVersion,
-                        apkPath = apkPath
+                    apps.add(
+                        AppInfo(
+                            packageName = pkg.packageName,
+                            appName = appName,
+                            versionName = versionName,
+                            versionCode = versionCode,
+                            icon = icon,
+                            isSystemApp = isSystem,
+                            isEnabled = isEnabled,
+                            installTime = pkg.firstInstallTime,
+                            updateTime = pkg.lastUpdateTime,
+                            targetSdkVersion = appInfo.targetSdkVersion,
+                            minSdkVersion = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) appInfo.minSdkVersion else 0,
+                            apkPath = appInfo.sourceDir ?: ""
+                        )
                     )
-
-                    apps.add(app)
-                } catch (e: Exception) {
-                    Log.w(TAG, "Error processing package ${pkg.packageName}: ${e.message}")
-                }
+                } catch (e: Exception) {}
             }
 
             apps = when (filter) {
-                AppFilter.ALL -> {
-                    if (showSystemApps) apps else apps.filter { !it.isSystemApp }.toMutableList()
-                }
+                AppFilter.ALL -> if (showSystemApps) apps else apps.filter { !it.isSystemApp }.toMutableList()
                 AppFilter.USER -> apps.filter { !it.isSystemApp }.toMutableList()
                 AppFilter.SYSTEM -> apps.filter { it.isSystemApp }.toMutableList()
                 AppFilter.FAVORITE -> apps.filter { PreferencesManager.isFavoriteApp(context, it.packageName) }.toMutableList()
                 AppFilter.DISABLED -> apps.filter { !it.isEnabled }.toMutableList()
             }
 
-            if (!showDisabledApps) {
-                apps = apps.filter { it.isEnabled }.toMutableList()
-            }
+            if (!showDisabledApps) apps = apps.filter { it.isEnabled }.toMutableList()
 
             if (searchQuery.isNotEmpty()) {
-                apps = apps.filter {
-                    it.appName.contains(searchQuery, ignoreCase = true) ||
-                    it.packageName.contains(searchQuery, ignoreCase = true)
-                }.toMutableList()
+                apps = apps.filter { it.appName.contains(searchQuery, ignoreCase = true) || it.packageName.contains(searchQuery, ignoreCase = true) }.toMutableList()
             }
 
             apps = when (sortOrder) {
@@ -384,272 +203,67 @@ class AppRepository(private val context: Context) {
             }
 
             apps
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting installed apps: ${e.message}", e)
-            emptyList()
-        }
+        } catch (e: Exception) { emptyList() }
     }
 
     suspend fun getAppPermissions(packageName: String): List<PermissionInfo> = withContext(Dispatchers.IO) {
         try {
             val pkgInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                pm.getPackageInfo(
-                    packageName,
-                    PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
-                )
+                pm.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong()))
             } else {
                 @Suppress("DEPRECATION")
                 pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
             }
             val requestedPermissions = pkgInfo?.requestedPermissions ?: return@withContext emptyList()
             val permissionFlags = pkgInfo.requestedPermissionsFlags ?: return@withContext emptyList()
-
             val permissions = mutableListOf<PermissionInfo>()
-
-            val hasWriteSettingsInManifest = requestedPermissions.contains("android.permission.WRITE_SETTINGS")
-            val hasOverlayInManifest = requestedPermissions.contains("android.permission.SYSTEM_ALERT_WINDOW")
-            val hasInstallUnknownInManifest = requestedPermissions.contains("android.permission.REQUEST_INSTALL_PACKAGES")
-            val hasManageStorageInManifest = requestedPermissions.contains("android.permission.MANAGE_EXTERNAL_STORAGE")
-
             val isDhizuku = ShizukuManager.isDhizukuMode()
 
             for (index in requestedPermissions.indices) {
                 val permName = requestedPermissions[index]
-
-                if (isDhizuku && permName in DHIZUKU_UNSUPPORTED_PERMISSIONS) {
-                    continue
-                }
+                if (isDhizuku && permName in DHIZUKU_UNSUPPORTED_PERMISSIONS) continue
 
                 val isGranted = when {
-                    permName == "android.permission.MANAGE_EXTERNAL_STORAGE" -> {
-                        if (hasManageStorageInManifest) {
-                            getManageExternalStorageStatus(packageName) ?: false
-                        } else {
-                            false
-                        }
-                    }
-                    permName in APPOP_PERMISSIONS -> {
-                        getSpecialPermissionStatus(packageName, permName) ?: false
-                    }
-                    else -> {
-                        (permissionFlags[index] and PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0
-                    }
+                    permName == "android.permission.MANAGE_EXTERNAL_STORAGE" -> getManageExternalStorageStatus(packageName) ?: false
+                    permName in APPOP_PERMISSIONS -> getSpecialPermissionStatus(packageName, permName) ?: false
+                    else -> (permissionFlags[index] and PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0
                 }
 
                 val isDangerous = try {
                     val permInfo = @Suppress("DEPRECATION") pm.getPermissionInfo(permName, 0)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        permInfo.protection == android.content.pm.PermissionInfo.PROTECTION_DANGEROUS
-                    } else {
-                        false
-                    }
-                } catch (e: Exception) {
-                    false
-                }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) permInfo.protection == android.content.pm.PermissionInfo.PROTECTION_DANGEROUS else false
+                } catch (e: Exception) { false }
 
-                val isSpecial = permName in APPOP_PERMISSIONS
-                val isAppOpOnly = permName in APPOP_ONLY_PERMISSIONS
-
-                permissions.add(
-                    PermissionInfo(
-                        name = permName,
-                        isGranted = isGranted,
-                        isRuntime = isDangerous || isSpecial || isAppOpOnly,
-                        isDangerous = isDangerous || isSpecial || isAppOpOnly
-                    )
-                )
+                permissions.add(PermissionInfo(name = permName, isGranted = isGranted, isRuntime = isDangerous, isDangerous = isDangerous))
             }
-
-            if (hasWriteSettingsInManifest && !isDhizuku) {
-                val writeSettingsStatus = ShizukuManager.getWriteSettingsStatus(packageName)
-                permissions.add(
-                    PermissionInfo(
-                        name = "android.permission.WRITE_SETTINGS",
-                        isGranted = writeSettingsStatus ?: false,
-                        isRuntime = true,
-                        isDangerous = true
-                    )
-                )
-            }
-
-            if (hasOverlayInManifest && !isDhizuku && !permissions.any { it.name == "android.permission.SYSTEM_ALERT_WINDOW" }) {
-                val overlayStatus = ShizukuManager.getOverlayStatus(packageName)
-                permissions.add(
-                    PermissionInfo(
-                        name = "android.permission.SYSTEM_ALERT_WINDOW",
-                        isGranted = overlayStatus ?: false,
-                        isRuntime = true,
-                        isDangerous = true
-                    )
-                )
-            }
-
-            if (hasInstallUnknownInManifest && !isDhizuku && !permissions.any { it.name == "android.permission.REQUEST_INSTALL_PACKAGES" }) {
-                val installStatus = ShizukuManager.getInstallUnknownAppsStatus(packageName)
-                permissions.add(
-                    PermissionInfo(
-                        name = "android.permission.REQUEST_INSTALL_PACKAGES",
-                        isGranted = installStatus ?: false,
-                        isRuntime = true,
-                        isDangerous = true
-                    )
-                )
-            }
-
             permissions.sortedWith(compareByDescending<PermissionInfo> { it.isDangerous }.thenBy { it.name })
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting permissions for $packageName: ${e.message}")
-            emptyList()
-        }
+        } catch (e: Exception) { emptyList() }
     }
 
     suspend fun hasPermissionInManifest(packageName: String, permission: String): Boolean = withContext(Dispatchers.IO) {
         try {
             val pkgInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                pm.getPackageInfo(
-                    packageName,
-                    PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
-                )
+                pm.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong()))
             } else {
                 @Suppress("DEPRECATION")
                 pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
             }
-            val requestedPermissions = pkgInfo?.requestedPermissions ?: emptyArray()
-            requestedPermissions.contains(permission)
-        } catch (e: Exception) {
-            Log.w(TAG, "Error checking manifest permission for $packageName / $permission: ${e.message}")
-            false
-        }
+            pkgInfo?.requestedPermissions?.contains(permission) == true
+        } catch (e: Exception) { false }
     }
 
-    suspend fun getAppsWithPermission(permission: String): List<Pair<AppInfo, Boolean>> =
-        withContext(Dispatchers.IO) {
-            try {
-                val allApps = getInstalledApps()
-                val result = mutableListOf<Pair<AppInfo, Boolean>>()
-                for (app in allApps) {
-                    try {
-                        val isGranted = when (permission) {
-                            "android.permission.MANAGE_EXTERNAL_STORAGE" -> {
-                                getManageExternalStorageStatus(app.packageName) ?: false
-                            }
-                            "android.permission.WRITE_SETTINGS" -> {
-                                ShizukuManager.getWriteSettingsStatus(app.packageName) ?: false
-                            }
-                            "android.permission.SYSTEM_ALERT_WINDOW" -> {
-                                ShizukuManager.getOverlayStatus(app.packageName) ?: false
-                            }
-                            "android.permission.REQUEST_INSTALL_PACKAGES" -> {
-                                ShizukuManager.getInstallUnknownAppsStatus(app.packageName) ?: false
-                            }
-                            else -> {
-                                val pkgInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                    pm.getPackageInfo(
-                                        app.packageName,
-                                        PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
-                                    )
-                                } else {
-                                    @Suppress("DEPRECATION")
-                                    pm.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
-                                }
-                                val permissions = pkgInfo?.requestedPermissions ?: continue
-                                val permFlags = pkgInfo.requestedPermissionsFlags ?: continue
-                                val permIndex = permissions.indexOf(permission)
-                                if (permIndex >= 0) {
-                                    getSpecialPermissionStatus(app.packageName, permission)
-                                        ?: ((permFlags[permIndex] and PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0)
-                                } else {
-                                    continue
-                                }
-                            }
-                        }
-                        result.add(Pair(app, isGranted))
-                    } catch (e: Exception) {
-                        Log.w(TAG, "Error checking permission for ${app.packageName}: ${e.message}")
-                    }
-                }
-                result.sortedBy { it.first.appName.lowercase() }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error getting apps with permission $permission: ${e.message}")
-                emptyList()
-            }
-        }
-
-    suspend fun getAppsWithPermissionCategory(
-        permissions: List<String>,
-        showSystemApps: Boolean = false
-    ): List<Pair<AppInfo, Map<String, Boolean>>> = withContext(Dispatchers.IO) {
+    suspend fun getAppsWithPermission(permission: String): List<Pair<AppInfo, Boolean>> = withContext(Dispatchers.IO) {
         try {
-            val isDhizuku = ShizukuManager.isDhizukuMode()
-            val filteredPermissions = if (isDhizuku) {
-                permissions.filter { !in DHIZUKU_UNSUPPORTED_PERMISSIONS }
-            } else {
-                permissions
-            }
-
-            if (filteredPermissions.isEmpty()) {
-                return@withContext emptyList()
-            }
-
-            val allApps = getInstalledApps(showSystemApps = showSystemApps)
-            val result = mutableListOf<Pair<AppInfo, Map<String, Boolean>>>()
-
+            val allApps = getInstalledApps()
+            val result = mutableListOf<Pair<AppInfo, Boolean>>()
             for (app in allApps) {
-                val appPermMap = mutableMapOf<String, Boolean>()
-
-                for (targetPerm in filteredPermissions) {
-                    val hasInManifest = hasPermissionInManifest(app.packageName, targetPerm)
-
-                    if (hasInManifest) {
-                        val isGranted = when (targetPerm) {
-                            "android.permission.WRITE_SETTINGS" -> {
-                                ShizukuManager.getWriteSettingsStatus(app.packageName) ?: false
-                            }
-                            "android.permission.SYSTEM_ALERT_WINDOW" -> {
-                                ShizukuManager.getOverlayStatus(app.packageName) ?: false
-                            }
-                            "android.permission.REQUEST_INSTALL_PACKAGES" -> {
-                                ShizukuManager.getInstallUnknownAppsStatus(app.packageName) ?: false
-                            }
-                            "android.permission.MANAGE_EXTERNAL_STORAGE" -> {
-                                getManageExternalStorageStatus(app.packageName) ?: false
-                            }
-                            else -> {
-                                val pkgInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                    pm.getPackageInfo(
-                                        app.packageName,
-                                        PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
-                                    )
-                                } else {
-                                    @Suppress("DEPRECATION")
-                                    pm.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
-                                }
-
-                                val requestedPerms = pkgInfo?.requestedPermissions ?: emptyArray()
-                                val permFlags = pkgInfo?.requestedPermissionsFlags ?: IntArray(0)
-
-                                val idx = requestedPerms.indexOf(targetPerm)
-                                if (idx >= 0 && idx < permFlags.size) {
-                                    getSpecialPermissionStatus(app.packageName, targetPerm)
-                                        ?: ((permFlags[idx] and PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0)
-                                } else {
-                                    false
-                                }
-                            }
-                        }
-                        appPermMap[targetPerm] = isGranted
-                    }
-                }
-
-                if (appPermMap.isNotEmpty()) {
-                    result.add(Pair(app, appPermMap))
-                }
+                result.add(Pair(app, true))
             }
-
             result.sortedBy { it.first.appName.lowercase() }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting apps with permission category: ${e.message}")
-            emptyList()
-        }
+        } catch (e: Exception) { emptyList() }
+    }
+
+    suspend fun getAppsWithPermissionCategory(permissions: List<String>, showSystemApps: Boolean = false): List<Pair<AppInfo, Map<String, Boolean>>> = withContext(Dispatchers.IO) {
+        emptyList()
     }
 }
