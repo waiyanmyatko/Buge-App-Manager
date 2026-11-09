@@ -283,8 +283,7 @@ class AppRepository(private val context: Context) {
     ): List<AppInfo> = withContext(Dispatchers.IO) {
         try {
             val flags = PackageManager.MATCH_UNINSTALLED_PACKAGES or 
-                        PackageManager.MATCH_DISABLED_COMPONENTS or 
-                        PackageManager.MATCH_ANY_USER
+                        PackageManager.MATCH_DISABLED_COMPONENTS
 
             val packages: List<PackageInfo> = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 pm.getInstalledPackages(PackageManager.PackageInfoFlags.of(flags.toLong()))
@@ -583,7 +582,7 @@ class AppRepository(private val context: Context) {
         try {
             val isDhizuku = ShizukuManager.isDhizukuMode()
             val filteredPermissions = if (isDhizuku) {
-                permissions.filter { it !in DHIZUKU_UNSUPPORTED_PERMISSIONS }
+                permissions.filter { !in DHIZUKU_UNSUPPORTED_PERMISSIONS }
             } else {
                 permissions
             }
