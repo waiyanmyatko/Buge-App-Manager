@@ -282,11 +282,15 @@ class AppRepository(private val context: Context) {
         showDisabledApps: Boolean = true
     ): List<AppInfo> = withContext(Dispatchers.IO) {
         try {
+            val flags = PackageManager.MATCH_UNINSTALLED_PACKAGES or 
+                        PackageManager.MATCH_DISABLED_COMPONENTS or 
+                        PackageManager.MATCH_ANY_USER
+
             val packages: List<PackageInfo> = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                pm.getInstalledPackages(PackageManager.PackageInfoFlags.of(0))
+                pm.getInstalledPackages(PackageManager.PackageInfoFlags.of(flags.toLong()))
             } else {
                 @Suppress("DEPRECATION")
-                pm.getInstalledPackages(0)
+                pm.getInstalledPackages(flags)
             }
 
             var apps = mutableListOf<AppInfo>()
@@ -296,7 +300,8 @@ class AppRepository(private val context: Context) {
                     val appInfo = pkg.applicationInfo
                     if (appInfo == null) continue
 
-                    val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+                    val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0 ||
+                                   (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
                     val isEnabled = appInfo.enabled
 
                     val appName = try {
